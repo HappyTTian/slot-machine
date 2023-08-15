@@ -104,11 +104,47 @@ const printRows = (rows) => {
     console.log(str);
   }
 };
-// const depositAmount = deposit();
-// balance += depositAmount;
-// const numOfLines = getNumLine();
-// const betAmount = getBet(balance, numOfLines);
-const reels = spin();
-const rows = transpose(reels);
-console.log(rows);
-printRows(rows);
+
+const getWinning = (rows, bet, numOfLines) => {
+  let winnings = 0;
+  for (let i = 0; i < numOfLines; i++) {
+    const symbols = rows[i];
+    let same = true;
+    for (symbol of symbols) {
+      if (symbol != symbols[0]) {
+        same = false;
+        break;
+      }
+    }
+
+    if (same) winnings += bet * SYMBOL_VALUE[symbols[0]];
+  }
+
+  return winnings;
+};
+
+const game = () => {
+  const depositAmount = deposit();
+  balance += depositAmount;
+
+  while (true) {
+    console.log(`Your balance is ${balance}`);
+    const numOfLines = getNumLine();
+    const betAmount = getBet(balance, numOfLines);
+    balance -= betAmount * numOfLines;
+    const reels = spin();
+    const rows = transpose(reels);
+    printRows(rows);
+    const winnings = getWinning(rows, betAmount, numOfLines);
+    balance += winnings;
+    if (balance <= 0) {
+      console.log("You are broke");
+      break;
+    }
+    if (winnings > 0) console.log(`You win ${winnings}, Congratulations!`);
+    let answer = prompt("Do you want to continue to play: (y/n)");
+    if (answer != "y" && answer != "yes") break;
+  }
+};
+
+game();
